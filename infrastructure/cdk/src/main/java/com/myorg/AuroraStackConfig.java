@@ -2,19 +2,15 @@ package com.myorg;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.cloud.stream.annotation.EnableBinding;
-import org.springframework.cloud.stream.messaging.Source;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.amqp.core.Queue;
 import org.springframework.amqp.rabbit.connection.ConnectionFactory;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.cloud.stream.function.StreamBridge;
-import org.springframework.integration.support.MessageBuilder;
 
 @Configuration
 @EnableConfigurationProperties
-@EnableBinding(Source.class)
 public class AuroraStackConfig {
 
     private final String vpcId;
@@ -108,7 +104,7 @@ public class AuroraStackConfig {
 
             @Override
             public boolean send(String channelName, Object payload, String contentType) {
-                rabbitTemplate.convertAndSend(channelName, payload, MessageBuilder.withPayload(payload).setHeader("contentType", contentType).build());
+                rabbitTemplate.convertAndSend(channelName, payload);
                 return true;
             }
         };

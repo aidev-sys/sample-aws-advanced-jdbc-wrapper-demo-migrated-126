@@ -2,7 +2,6 @@ package com.myorg;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.cloud.stream.function.StreamBridge;
 import org.springframework.context.annotation.Bean;
 import org.springframework.amqp.core.Queue;
 import org.springframework.amqp.rabbit.connection.ConnectionFactory;
@@ -37,16 +36,13 @@ public class AuroraApp {
     public static class UserService {
 
         private final UserRepository userRepository;
-        private final StreamBridge streamBridge;
 
-        public UserService(UserRepository userRepository, StreamBridge streamBridge) {
+        public UserService(UserRepository userRepository) {
             this.userRepository = userRepository;
-            this.streamBridge = streamBridge;
         }
 
         public User saveUser(User user) {
             User saved = userRepository.save(user);
-            streamBridge.send("userCreated-out-0", saved);
             return saved;
         }
 

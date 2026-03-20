@@ -21,7 +21,7 @@ import javax.sql.DataSource;
 import java.util.List;
 import java.util.Optional;
 
-public class User {
+class User {
 
     private Long id;
     private String name;
@@ -160,7 +160,7 @@ class DataSourceConfig {
     }
 }
 
-public class Order {
+class Order {
 
     private Long id;
     private String productName;
