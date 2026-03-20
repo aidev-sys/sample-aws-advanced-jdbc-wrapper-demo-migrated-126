@@ -7,7 +7,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.amqp.core.Queue;
 import org.springframework.amqp.rabbit.connection.ConnectionFactory;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
-import org.springframework.cloud.stream.function.StreamBridge;
 
 @Configuration
 @EnableConfigurationProperties
@@ -91,22 +90,5 @@ public class AuroraStackConfig {
     @Bean
     public RabbitTemplate rabbitTemplate(ConnectionFactory connectionFactory) {
         return new RabbitTemplate(connectionFactory);
-    }
-
-    @Bean
-    public StreamBridge streamBridge(RabbitTemplate rabbitTemplate) {
-        return new StreamBridge() {
-            @Override
-            public boolean send(String channelName, Object payload) {
-                rabbitTemplate.convertAndSend(channelName, payload);
-                return true;
-            }
-
-            @Override
-            public boolean send(String channelName, Object payload, String contentType) {
-                rabbitTemplate.convertAndSend(channelName, payload);
-                return true;
-            }
-        };
     }
 }

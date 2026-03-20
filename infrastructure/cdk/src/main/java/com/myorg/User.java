@@ -6,9 +6,6 @@ import org.springframework.amqp.rabbit.connection.ConnectionFactory;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
 import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.cloud.stream.annotation.EnableBinding;
-import org.springframework.cloud.stream.annotation.Input;
-import org.springframework.cloud.stream.annotation.Output;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -83,7 +80,6 @@ interface UserRepository extends JpaRepository<User, Long> {
 
 @Configuration
 @EnableRabbit
-@EnableBinding({UserProcessor.class})
 class RabbitConfig {
 
     public static final String USER_EXCHANGE = "user.exchange";
@@ -111,17 +107,6 @@ class RabbitConfig {
         template.setMessageConverter(new Jackson2JsonMessageConverter());
         return template;
     }
-}
-
-interface UserProcessor {
-    String INPUT = "user-input";
-    String OUTPUT = "user-output";
-
-    @Input(INPUT)
-    SubscribableChannel input();
-
-    @Output(OUTPUT)
-    MessageChannel output();
 }
 
 @Service

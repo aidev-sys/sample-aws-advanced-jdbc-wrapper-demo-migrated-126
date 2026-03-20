@@ -33,7 +33,7 @@ public class AuroraApp {
 
     @Service
     @Transactional
-    public static class UserService {
+    static class UserService {
 
         private final UserRepository userRepository;
 
@@ -55,7 +55,7 @@ public class AuroraApp {
         }
     }
 
-    public static class User {
+    static class User {
 
         private Long id;
         private String username;
@@ -93,7 +93,7 @@ public class AuroraApp {
         }
     }
 
-    public interface UserRepository {
+    interface UserRepository {
         User save(User user);
         Optional<User> findById(Long id);
         List<User> findAll();
