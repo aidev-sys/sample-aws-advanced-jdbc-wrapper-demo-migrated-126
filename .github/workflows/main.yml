@@ -1,0 +1,31 @@
+name: Java CI
+on: [workflow_dispatch]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - name: Setup Java 21
+      uses: actions/setup-java@v4
+      with: {java-version: '21', distribution: 'temurin'}
+    - name: Build Validation
+      run: |
+          set -e
+          echo 'Building module: .'
+          gradle build -x test
+          echo 'Building module: config_templates/aws-jdbc-wrapper'
+          cd config_templates/aws-jdbc-wrapper
+          gradle build -x test
+          cd -
+          echo 'Building module: config_templates/read-write-splitting'
+          cd config_templates/read-write-splitting
+          gradle build -x test
+          cd -
+          echo 'Building module: config_templates/standard-jdbc'
+          cd config_templates/standard-jdbc
+          gradle build -x test
+          cd -
+          echo 'Building module: infrastructure/cdk'
+          cd infrastructure/cdk
+          mvn -B clean package -DskipTests
+          cd -

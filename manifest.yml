@@ -1,0 +1,60 @@
+---
+applications:
+- name: sample-aws-advanced-jdbc-wrapper-demo-modernized
+  memory: 1G
+  instances: 1
+  buildpacks:
+    - java_buildpack
+  path: build/libs/*.jar
+  env:
+    JBP_CONFIG_OPEN_JDK_JRE: '{ jre: { version: 21.+ } }'
+    SPRING_PROFILES_ACTIVE: cloud
+  services:
+    - modernized-postgres
+
+- name: sample-aws-advanced-jdbc-wrapper-demo-modernized-config_templates-aws-jdbc-wrapper
+  memory: 1G
+  instances: 1
+  buildpacks:
+    - java_buildpack
+  path: config_templates/aws-jdbc-wrapper/build/libs/*.jar
+  env:
+    JBP_CONFIG_OPEN_JDK_JRE: '{ jre: { version: 21.+ } }'
+    SPRING_PROFILES_ACTIVE: cloud
+  services:
+    - modernized-postgres
+
+- name: sample-aws-advanced-jdbc-wrapper-demo-modernized-config_templates-read-write-splitting
+  memory: 1G
+  instances: 1
+  buildpacks:
+    - java_buildpack
+  path: config_templates/read-write-splitting/build/libs/*.jar
+  env:
+    JBP_CONFIG_OPEN_JDK_JRE: '{ jre: { version: 21.+ } }'
+    SPRING_PROFILES_ACTIVE: cloud
+  services:
+    - modernized-postgres
+
+- name: sample-aws-advanced-jdbc-wrapper-demo-modernized-config_templates-standard-jdbc
+  memory: 1G
+  instances: 1
+  buildpacks:
+    - java_buildpack
+  path: config_templates/standard-jdbc/build/libs/*.jar
+  env:
+    JBP_CONFIG_OPEN_JDK_JRE: '{ jre: { version: 21.+ } }'
+    SPRING_PROFILES_ACTIVE: cloud
+
+- name: sample-aws-advanced-jdbc-wrapper-demo-modernized-infrastructure-cdk
+  memory: 1G
+  instances: 1
+  buildpacks:
+    - java_buildpack
+  path: infrastructure/cdk/target/*.jar
+  env:
+    JBP_CONFIG_OPEN_JDK_JRE: '{ jre: { version: 21.+ } }'
+    SPRING_PROFILES_ACTIVE: cloud
+  services:
+    - modernized-postgres
+

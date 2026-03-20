@@ -2,7 +2,7 @@ package com.example;
 
 import com.example.dao.OrderDAO;
 import com.example.model.Order;
-import com.example.config.DatabaseConfig;
+import com.example.config.PostgresConfig;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
@@ -47,7 +47,7 @@ public class Application {
             log.error("Application error", e);
         } finally {
             // Close the connection pool
-            DatabaseConfig.closePool();
+            PostgresConfig.closePool();
         }
     }
 }

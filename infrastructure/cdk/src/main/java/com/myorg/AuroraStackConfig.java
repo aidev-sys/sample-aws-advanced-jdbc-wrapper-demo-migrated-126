@@ -1,6 +1,23 @@
 package com.myorg;
 
+import jakarta.persistence.*;
+import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.cloud.stream.annotation.EnableBinding;
+import org.springframework.cloud.stream.messaging.Source;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.amqp.core.Queue;
+import org.springframework.amqp.rabbit.connection.ConnectionFactory;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import org.springframework.cloud.stream.function.StreamBridge;
+import org.springframework.integration.support.MessageBuilder;
+
+@Configuration
+@EnableConfigurationProperties
+@EnableBinding(Source.class)
 public class AuroraStackConfig {
+
     private final String vpcId;
     private final String clusterId;
     private final String dbUsername;
@@ -69,5 +86,32 @@ public class AuroraStackConfig {
         public AuroraStackConfig build() {
             return new AuroraStackConfig(this);
         }
+    }
+
+    @Bean
+    public Queue myQueue() {
+        return new Queue("myQueue", false);
+    }
+
+    @Bean
+    public RabbitTemplate rabbitTemplate(ConnectionFactory connectionFactory) {
+        return new RabbitTemplate(connectionFactory);
+    }
+
+    @Bean
+    public StreamBridge streamBridge(RabbitTemplate rabbitTemplate) {
+        return new StreamBridge() {
+            @Override
+            public boolean send(String channelName, Object payload) {
+                rabbitTemplate.convertAndSend(channelName, payload);
+                return true;
+            }
+
+            @Override
+            public boolean send(String channelName, Object payload, String contentType) {
+                rabbitTemplate.convertAndSend(channelName, payload, MessageBuilder.withPayload(payload).setHeader("contentType", contentType).build());
+                return true;
+            }
+        };
     }
 }

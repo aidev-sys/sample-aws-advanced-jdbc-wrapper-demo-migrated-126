@@ -1,71 +1,111 @@
 package com.myorg;
 
-import software.amazon.awscdk.App;
-import software.amazon.awscdk.Environment;
-import software.amazon.awscdk.StackProps;
+import jakarta.persistence.*;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.cloud.stream.function.StreamBridge;
+import org.springframework.context.annotation.Bean;
+import org.springframework.amqp.core.Queue;
+import org.springframework.amqp.rabbit.connection.ConnectionFactory;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
+import org.springframework.amqp.support.converter.MessageConverter;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.util.Properties;
+import java.util.List;
+import java.util.Optional;
 
+@SpringBootApplication
 public class AuroraApp {
-    public static void main(final String[] args) {
-        App app = new App();
 
-        // Load configuration from .env file
-        Properties config = loadEnvConfig();
-        
-        // Get configuration values with defaults
-        String vpcId = getConfigValue(config, "AWS_VPC_ID", null);
-        String clusterId = getConfigValue(config, "AURORA_CLUSTER_ID", null);
-        String dbUsername = getConfigValue(config, "AURORA_DB_USERNAME", null);
-        String dbName = getConfigValue(config, "AURORA_DB_NAME", null);
-        String region = getConfigValue(config, "AWS_REGION", System.getenv("CDK_DEFAULT_REGION"));     
-        String existingSecurityGroupId = getConfigValue(config, "AWS_SECURITY_GROUP_ID", null);
-        String existingSubnetGroupName = getConfigValue(config, "AWS_DB_SUBNET_GROUP_NAME", null);
-
-        // Environment configuration
-        Environment env = Environment.builder()
-                .account(System.getenv("CDK_DEFAULT_ACCOUNT"))
-                .region(region)
-                .build();
-
-        new AuroraStack(app, "aws-jdbc-driver-stack", StackProps.builder()
-                .env(env)
-                .build(), AuroraStackConfig.builder()
-                .vpcId(vpcId)
-                .clusterId(clusterId)
-                .dbUsername(dbUsername)
-                .dbName(dbName)
-                .existingSecurityGroupId(existingSecurityGroupId)
-                .existingSubnetGroupName(existingSubnetGroupName)
-                .build());
-
-        app.synth();
+    public static void main(String[] args) {
+        SpringApplication.run(AuroraApp.class, args);
     }
 
-    private static Properties loadEnvConfig() {
-        Properties props = new Properties();
-        try {
-            // Try to load from .env file in project root
-            FileInputStream fis = new FileInputStream("../../.env");
-            props.load(fis);
-            fis.close();
-        } catch (IOException e) {
-            System.out.println("No .env file found, using defaults and environment variables");
-        }
-        return props;
+    @Bean
+    public MessageConverter jsonMessageConverter() {
+        return new Jackson2JsonMessageConverter();
     }
 
-    private static String getConfigValue(Properties props, String key, String defaultValue) {
-        // Priority: .env file > environment variable > default value
-        String value = props.getProperty(key);
-        if (value == null || value.trim().isEmpty()) {
-            value = System.getenv(key);
-        }
-        if (value == null || value.trim().isEmpty()) {
-            value = defaultValue;
-        }
-        return value;
+    @Bean
+    public Queue myQueue() {
+        return new Queue("my.queue", false);
     }
+
+    @Service
+    @Transactional
+    public static class UserService {
+
+        private final UserRepository userRepository;
+        private final StreamBridge streamBridge;
+
+        public UserService(UserRepository userRepository, StreamBridge streamBridge) {
+            this.userRepository = userRepository;
+            this.streamBridge = streamBridge;
+        }
+
+        public User saveUser(User user) {
+            User saved = userRepository.save(user);
+            streamBridge.send("userCreated-out-0", saved);
+            return saved;
+        }
+
+        public Optional<User> findUserById(Long id) {
+            return userRepository.findById(id);
+        }
+
+        public List<User> findAllUsers() {
+            return userRepository.findAll();
+        }
+    }
+
+    @Entity
+    @Table(name = "users")
+    public static class User {
+
+        @Id
+        @GeneratedValue(strategy = GenerationType.IDENTITY)
+        private Long id;
+
+        @Column(name = "username", nullable = false)
+        private String username;
+
+        @Column(name = "email", nullable = false)
+        private String email;
+
+        public User() {}
+
+        public User(String username, String email) {
+            this.username = username;
+            this.email = email;
+        }
+
+        public Long getId() {
+            return id;
+        }
+
+        public void setId(Long id) {
+            this.id = id;
+        }
+
+        public String getUsername() {
+            return username;
+        }
+
+        public void setUsername(String username) {
+            this.username = username;
+        }
+
+        public String getEmail() {
+            return email;
+        }
+
+        public void setEmail(String email) {
+            this.email = email;
+        }
+    }
+
+    public interface UserRepository extends JpaRepository<User, Long> {}
 }
