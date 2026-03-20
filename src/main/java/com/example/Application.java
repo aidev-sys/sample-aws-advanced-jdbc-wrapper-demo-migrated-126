@@ -3,13 +3,15 @@ package com.example;
 import com.example.dao.OrderDAO;
 import com.example.model.Order;
 import com.example.config.PostgresConfig;
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.Map;
 
-@Slf4j
 public class Application {
+    private static final Logger log = LoggerFactory.getLogger(Application.class);
+
     public static void main(String[] args) {
         OrderDAO dao = new OrderDAO();
 

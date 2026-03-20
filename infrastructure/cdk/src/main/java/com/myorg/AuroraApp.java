@@ -1,6 +1,5 @@
 package com.myorg;
 
-import jakarta.persistence.*;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.stream.function.StreamBridge;
@@ -10,7 +9,6 @@ import org.springframework.amqp.rabbit.connection.ConnectionFactory;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
 import org.springframework.amqp.support.converter.MessageConverter;
-import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -61,18 +59,10 @@ public class AuroraApp {
         }
     }
 
-    @Entity
-    @Table(name = "users")
     public static class User {
 
-        @Id
-        @GeneratedValue(strategy = GenerationType.IDENTITY)
         private Long id;
-
-        @Column(name = "username", nullable = false)
         private String username;
-
-        @Column(name = "email", nullable = false)
         private String email;
 
         public User() {}
@@ -107,5 +97,9 @@ public class AuroraApp {
         }
     }
 
-    public interface UserRepository extends JpaRepository<User, Long> {}
+    public interface UserRepository {
+        User save(User user);
+        Optional<User> findById(Long id);
+        List<User> findAll();
+    }
 }

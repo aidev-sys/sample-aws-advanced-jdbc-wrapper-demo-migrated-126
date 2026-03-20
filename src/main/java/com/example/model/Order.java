@@ -1,36 +1,82 @@
 package com.example.model;
 
-import jakarta.persistence.*;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.AllArgsConstructor;
 import java.time.LocalDateTime;
 
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
-@Entity
-@Table(name = "orders")
 public class Order {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
-    @Column(name = "customer_name", nullable = false)
     private String customerName;
-
-    @Column(name = "product", nullable = false)
     private String product;
-
-    @Column(name = "quantity")
     private Integer quantity;
-
-    @Column(name = "total_amount")
     private Double totalAmount;
-
-    @Column(name = "status", nullable = false)
     private String status;
-
-    @Column(name = "order_date")
     private LocalDateTime orderDate;
+
+    public Order() {
+    }
+
+    public Order(Long id, String customerName, String product, Integer quantity, Double totalAmount, String status, LocalDateTime orderDate) {
+        this.id = id;
+        this.customerName = customerName;
+        this.product = product;
+        this.quantity = quantity;
+        this.totalAmount = totalAmount;
+        this.status = status;
+        this.orderDate = orderDate;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getCustomerName() {
+        return customerName;
+    }
+
+    public void setCustomerName(String customerName) {
+        this.customerName = customerName;
+    }
+
+    public String getProduct() {
+        return product;
+    }
+
+    public void setProduct(String product) {
+        this.product = product;
+    }
+
+    public Integer getQuantity() {
+        return quantity;
+    }
+
+    public void setQuantity(Integer quantity) {
+        this.quantity = quantity;
+    }
+
+    public Double getTotalAmount() {
+        return totalAmount;
+    }
+
+    public void setTotalAmount(Double totalAmount) {
+        this.totalAmount = totalAmount;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    public LocalDateTime getOrderDate() {
+        return orderDate;
+    }
+
+    public void setOrderDate(LocalDateTime orderDate) {
+        this.orderDate = orderDate;
+    }
 }

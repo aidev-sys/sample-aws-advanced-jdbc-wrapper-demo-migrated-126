@@ -1,6 +1,5 @@
 package com.myorg;
 
-import jakarta.persistence.*;
 import org.springframework.amqp.core.*;
 import org.springframework.amqp.rabbit.annotation.EnableRabbit;
 import org.springframework.amqp.rabbit.connection.ConnectionFactory;
@@ -10,7 +9,6 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.cloud.stream.annotation.EnableBinding;
 import org.springframework.cloud.stream.annotation.Input;
 import org.springframework.cloud.stream.annotation.Output;
-import org.springframework.cloud.stream.config.BindingServiceProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -23,26 +21,54 @@ import javax.sql.DataSource;
 import java.util.List;
 import java.util.Optional;
 
-@Entity
-@Table(name = "users")
-@Data
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
 public class User {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
-    @Column(nullable = false)
     private String name;
-
-    @Column(unique = true, nullable = false)
     private String email;
-
-    @Column
     private String phone;
+
+    public User() {
+    }
+
+    public User(Long id, String name, String email, String phone) {
+        this.id = id;
+        this.name = name;
+        this.email = email;
+        this.phone = phone;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public String getPhone() {
+        return phone;
+    }
+
+    public void setPhone(String phone) {
+        this.phone = phone;
+    }
 }
 
 @Repository
@@ -52,7 +78,7 @@ interface UserRepository extends JpaRepository<User, Long> {
     Optional<User> findByEmail(String email);
 
     @Query("SELECT u FROM User u WHERE u.name LIKE %:name%")
-    List<User> findByNameContaining(@Param("name") String name);
+    List<User> findByNameContaining(String name);
 }
 
 @Configuration
@@ -126,30 +152,62 @@ class DataSourceConfig {
     @Bean
     @ConfigurationProperties(prefix = "spring.datasource")
     public DataSource dataSource() {
-        return javax.sql.DataSource.class.cast(com.zaxxer.hikari.HikariDataSource.class.newInstance());
+        try {
+            return javax.sql.DataSource.class.cast(com.zaxxer.hikari.HikariDataSource.class.newInstance());
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 }
 
-@Entity
-@Table(name = "orders")
-@Data
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
 public class Order {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
-    @Column(nullable = false)
     private String productName;
-
-    @Column(nullable = false)
     private Integer quantity;
-
-    @Column
     private Double price;
+
+    public Order() {
+    }
+
+    public Order(Long id, String productName, Integer quantity, Double price) {
+        this.id = id;
+        this.productName = productName;
+        this.quantity = quantity;
+        this.price = price;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getProductName() {
+        return productName;
+    }
+
+    public void setProductName(String productName) {
+        this.productName = productName;
+    }
+
+    public Integer getQuantity() {
+        return quantity;
+    }
+
+    public void setQuantity(Integer quantity) {
+        this.quantity = quantity;
+    }
+
+    public Double getPrice() {
+        return price;
+    }
+
+    public void setPrice(Double price) {
+        this.price = price;
+    }
 }
 
 @Repository
